@@ -97,6 +97,8 @@ const Position = () => {
     setValue('isActive', position.isActive)
   }
 
+  const toUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1)
+
   return (
     <>
       <Head>
@@ -260,7 +262,7 @@ const Position = () => {
                 {data &&
                   data.map((position) => (
                     <tr key={position._id}>
-                      <td>{position.name}</td>
+                      <td>{toUpper(position.name)}</td>
                       <td>
                         {position.isActive ? (
                           <FaCheckCircle className='text-success mb-1' />

@@ -26,7 +26,7 @@ handler.put(async (req, res) => {
   if (obj) {
     const exist = await constants.model.exists({
       _id: { $ne: _id },
-      name: { $regex: name, $options: 'i' },
+      name: name.toLowerCase(),
     })
     if (!exist) {
       obj.name = name

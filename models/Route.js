@@ -4,7 +4,7 @@ const routeScheme = mongoose.Schema(
   {
     name: { type: String, requited: true },
     menu: { type: String, requited: true },
-    path: { type: String, requited: true },
+    path: { type: String, requited: true, trim: true, lowercase: true },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

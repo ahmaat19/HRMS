@@ -3,7 +3,13 @@ import User from './User'
 
 const positionScheme = mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true, trim: true },
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+    },
     isActive: { type: Boolean, default: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

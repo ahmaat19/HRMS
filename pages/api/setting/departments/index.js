@@ -27,10 +27,9 @@ handler.post(async (req, res) => {
   const createdBy = req.user.id
 
   const exist = await constants.model.exists({
-    name: { $regex: name, $options: 'i' },
+    name: name.toLowerCase(),
   })
 
-  console.log(exist)
   if (exist) {
     return res.status(400).send(constants.existed)
   }

@@ -97,6 +97,8 @@ const Department = () => {
     setValue('isActive', department.isActive)
   }
 
+  const toUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1)
+
   return (
     <>
       <Head>
@@ -260,7 +262,7 @@ const Department = () => {
                 {data &&
                   data.map((department) => (
                     <tr key={department._id}>
-                      <td>{department.name}</td>
+                      <td>{toUpper(department.name)}</td>
                       <td>
                         {department.isActive ? (
                           <FaCheckCircle className='text-success mb-1' />
