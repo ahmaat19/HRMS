@@ -7,7 +7,7 @@ import {
   FaSignInAlt,
   FaUserPlus,
   FaPowerOff,
-  FaBars,
+  FaCogs,
 } from 'react-icons/fa'
 import { logout } from '../api/users'
 import { useMutation } from 'react-query'
@@ -58,7 +58,7 @@ const Navigation = () => {
   const authItems = () => {
     return (
       <>
-        <ul className='navbar-nav me-auto'>
+        <ul className='navbar-nav ms-auto'>
           {customLocalStorage() &&
             customLocalStorage().userAccessRoutes &&
             customLocalStorage().userAccessRoutes.route &&
@@ -75,40 +75,73 @@ const Navigation = () => {
                   </li>
                 )
             )}
-        </ul>
-        <ul className='navbar-nav ms-auto'>
+
           {UnlockAccess(Access.admin) && (
-            <li className='nav-item dropdown'>
-              <a
-                className='nav-link dropdown-toggle'
-                href='#'
-                id='navbarDropdownMenuLink'
-                role='button'
-                data-bs-toggle='dropdown'
-                aria-expanded='false'
-              >
-                <FaCog className='mb-1' /> Admin
-              </a>
-              <ul
-                className='dropdown-menu border-0'
-                aria-labelledby='navbarDropdownMenuLink'
-              >
-                {customLocalStorage() &&
-                  customLocalStorage().userAccessRoutes &&
-                  customLocalStorage().userAccessRoutes.route &&
-                  customLocalStorage().userAccessRoutes.route.map(
-                    (route) =>
-                      route.isActive &&
-                      route.menu === 'Admin' && (
-                        <li key={route._id}>
-                          <Link href={route.path}>
-                            <a className='dropdown-item'>{route.name}</a>
-                          </Link>
-                        </li>
-                      )
-                  )}
-              </ul>
-            </li>
+            <>
+              <li className='nav-item dropdown'>
+                <a
+                  className='nav-link dropdown-toggle'
+                  href='#'
+                  id='navbarDropdownMenuLink'
+                  role='button'
+                  data-bs-toggle='dropdown'
+                  aria-expanded='false'
+                >
+                  <FaCogs className='mb-1' /> Setting
+                </a>
+                <ul
+                  className='dropdown-menu border-0'
+                  aria-labelledby='navbarDropdownMenuLink'
+                >
+                  {customLocalStorage() &&
+                    customLocalStorage().userAccessRoutes &&
+                    customLocalStorage().userAccessRoutes.route &&
+                    customLocalStorage().userAccessRoutes.route.map(
+                      (route) =>
+                        route.isActive &&
+                        route.menu === 'Setting' && (
+                          <li key={route._id}>
+                            <Link href={route.path}>
+                              <a className='dropdown-item'>{route.name}</a>
+                            </Link>
+                          </li>
+                        )
+                    )}
+                </ul>
+              </li>
+
+              <li className='nav-item dropdown'>
+                <a
+                  className='nav-link dropdown-toggle'
+                  href='#'
+                  id='navbarDropdownMenuLink'
+                  role='button'
+                  data-bs-toggle='dropdown'
+                  aria-expanded='false'
+                >
+                  <FaCog className='mb-1' /> Admin
+                </a>
+                <ul
+                  className='dropdown-menu border-0'
+                  aria-labelledby='navbarDropdownMenuLink'
+                >
+                  {customLocalStorage() &&
+                    customLocalStorage().userAccessRoutes &&
+                    customLocalStorage().userAccessRoutes.route &&
+                    customLocalStorage().userAccessRoutes.route.map(
+                      (route) =>
+                        route.isActive &&
+                        route.menu === 'Admin' && (
+                          <li key={route._id}>
+                            <Link href={route.path}>
+                              <a className='dropdown-item'>{route.name}</a>
+                            </Link>
+                          </li>
+                        )
+                    )}
+                </ul>
+              </li>
+            </>
           )}
 
           <li className='nav-item dropdown'>
@@ -154,19 +187,8 @@ const Navigation = () => {
   return (
     <nav className='navbar navbar-expand-sm navbar-light shadow-lg'>
       <div className='container'>
-        <span className='navbar-brand'>
-          {userInfo && (
-            <FaBars
-              className='mb-1 me-3'
-              data-bs-toggle='offcanvas'
-              data-bs-target='#offcanvasWithBackdrop'
-              aria-controls='offcanvasWithBackdrop'
-            />
-          )}
-        </span>
-
         <Link href='/'>
-          <a className='navbar-brand shadow-lg rounded-pill fw-bold'>
+          <a className='navbar-brand rounded-pill fw-bold'>
             <Image src='/logo.svg' width='30' height='30' alt='logo' />
           </a>
         </Link>

@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
-import { CSVLink } from 'react-csv'
 import {
   FaCheckCircle,
   FaFileDownload,
@@ -14,15 +13,18 @@ import {
   FaTrash,
 } from 'react-icons/fa'
 
-import useRoutes from '../../api/routes'
+import usePositions from '../../api/positions'
+
+import { CSVLink } from 'react-csv'
 
 import { confirmAlert } from 'react-confirm-alert'
 import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
 import { inputCheckBox, inputText } from '../../utils/dynamicForm'
 
-const Route = () => {
-  const { getRoutes, addRoute, updateRoute, deleteRoute } = useRoutes()
+const Position = () => {
+  const { getPositions, updatePosition, addPosition, deletePosition } =
+    usePositions()
   const {
     register,
     handleSubmit,
@@ -35,10 +37,7 @@ const Route = () => {
     },
   })
 
-  const [id, setId] = useState(null)
-  const [edit, setEdit] = useState(false)
-
-  const { data, isLoading, isError, error } = getRoutes
+  const { data, isLoading, isError, error } = getPositions
 
   const {
     isLoading: isLoadingUpdate,
@@ -46,7 +45,7 @@ const Route = () => {
     error: errorUpdate,
     isSuccess: isSuccessUpdate,
     mutateAsync: updateMutateAsync,
-  } = updateRoute
+  } = updatePosition
 
   const {
     isLoading: isLoadingDelete,
@@ -54,7 +53,7 @@ const Route = () => {
     error: errorDelete,
     isSuccess: isSuccessDelete,
     mutateAsync: deleteMutateAsync,
-  } = deleteRoute
+  } = deletePosition
 
   const {
     isLoading: isLoadingAdd,
@@ -62,7 +61,11 @@ const Route = () => {
     error: errorAdd,
     isSuccess: isSuccessAdd,
     mutateAsync: addMutateAsync,
-  } = addRoute
+  } = addPosition
+
+  const [id, setId] = useState(null)
+  const [edit, setEdit] = useState(false)
+
   const formCleanHandler = () => {
     setEdit(false)
     reset()
@@ -70,7 +73,6 @@ const Route = () => {
 
   useEffect(() => {
     if (isSuccessAdd || isSuccessUpdate) formCleanHandler()
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessAdd, isSuccessUpdate])
 
@@ -78,65 +80,62 @@ const Route = () => {
     confirmAlert(Confirm(() => deleteMutateAsync(id)))
   }
 
-  const submitHandler = (data) => {
+  const submitHandler = async (data) => {
     edit
       ? updateMutateAsync({
           _id: id,
-          path: data.path,
-          menu: data.menu,
-          isActive: data.isActive,
           name: data.name,
+          isActive: data.isActive,
         })
       : addMutateAsync(data)
   }
 
-  const editHandler = (route) => {
-    setId(route._id)
+  const editHandler = (position) => {
+    setId(position._id)
     setEdit(true)
-    setValue('path', route.path)
-    setValue('menu', route.menu)
-    setValue('isActive', route.isActive)
-    setValue('name', route.name)
+    setValue('name', position.name)
+    setValue('isActive', position.isActive)
   }
 
   return (
     <>
       <Head>
-        <title>Routes</title>
-        <meta property='og:title' content='Routes' key='title' />
+        <title>Position</title>
+        <meta property='og:title' content='Position' key='title' />
       </Head>
       {isSuccessUpdate && (
         <Message variant='success'>
-          Route has been updated successfully.
+          Position has been updated successfully.
         </Message>
       )}
       {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
       {isSuccessAdd && (
         <Message variant='success'>
-          Route has been Created successfully.
+          Position has been Created successfully.
         </Message>
       )}
       {isErrorAdd && <Message variant='danger'>{errorAdd}</Message>}
       {isSuccessDelete && (
         <Message variant='success'>
-          Route has been deleted successfully.
+          Position has been deleted successfully.
         </Message>
       )}
       {isErrorDelete && <Message variant='danger'>{errorDelete}</Message>}
+
       <div
         className='modal fade'
-        id='editRouteModal'
+        id='editPositionModal'
         data-bs-backdrop='static'
         data-bs-keyboard='false'
         tabIndex='-1'
-        aria-labelledby='editRouteModalLabel'
+        aria-labelledby='editPositionModalLabel'
         aria-hidden='true'
       >
         <div className='modal-dialog'>
           <div className='modal-content modal-background'>
             <div className='modal-header'>
-              <h3 className='modal-title ' id='editRouteModalLabel'>
-                {edit ? 'Edit Route' : 'Add Route'}
+              <h3 className='modal-title ' id='editPositionModalLabel'>
+                {edit ? 'Edit Position' : 'Add Position'}
               </h3>
               <button
                 type='button'
@@ -161,10 +160,7 @@ const Route = () => {
                 <Message variant='danger'>{error}</Message>
               ) : (
                 <form onSubmit={handleSubmit(submitHandler)}>
-                  {inputText({ register, errors, label: 'Name', name: 'name' })}
-                  {inputText({ register, errors, label: 'Path', name: 'path' })}
-                  {inputText({ register, errors, label: 'Menu', name: 'menu' })}
-
+                  {inputText({ register, label: 'Name', errors, name: 'name' })}
                   <div className='row'>
                     <div className='col'>
                       {inputCheckBox({
@@ -176,7 +172,6 @@ const Route = () => {
                       })}
                     </div>
                   </div>
-
                   <div className='modal-footer'>
                     <button
                       type='button'
@@ -213,12 +208,12 @@ const Route = () => {
             right: '20px',
           }}
           data-bs-toggle='modal'
-          data-bs-target='#editRouteModal'
+          data-bs-target='#editPositionModal'
         >
           <FaPlus className='mb-1' />
         </button>
 
-        <CSVLink data={data ? data : []} filename='router.csv'>
+        <CSVLink data={data ? data : []} filename='position.csv'>
           <button
             className='btn btn-success position-fixed rounded-3 animate__bounceIn'
             style={{
@@ -233,7 +228,7 @@ const Route = () => {
 
       <div className='row mt-2'>
         <div className='col-md-4 col-6 me-auto'>
-          <h3 className='fw-light font-monospace'>Routes</h3>
+          <h3 className='fw-light font-monospace'>Positions</h3>
         </div>
       </div>
 
@@ -257,40 +252,36 @@ const Route = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Path</th>
-                  <th>Menu</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {data &&
-                  data.map((route) => (
-                    <tr key={route._id}>
-                      <td>{route.name}</td>
-                      <td>{route.path}</td>
-                      <td>{route.menu}</td>
+                  data.map((position) => (
+                    <tr key={position._id}>
+                      <td>{position.name}</td>
                       <td>
-                        {route.isActive ? (
+                        {position.isActive ? (
                           <FaCheckCircle className='text-success mb-1' />
                         ) : (
                           <FaTimesCircle className='text-danger mb-1' />
                         )}
                       </td>
 
-                      <td className='btn-route'>
+                      <td className='btn-position'>
                         <button
-                          className='btn btn-primary btn-sm rounded-pill'
-                          onClick={() => editHandler(route)}
+                          className='btn btn-primary btn-sm rounded-pill '
+                          onClick={() => editHandler(position)}
                           data-bs-toggle='modal'
-                          data-bs-target='#editRouteModal'
+                          data-bs-target='#editPositionModal'
                         >
                           <FaPenAlt />
                         </button>
 
                         <button
                           className='btn btn-danger btn-sm rounded-pill ms-1'
-                          onClick={() => deleteHandler(route._id)}
+                          onClick={() => deleteHandler(position._id)}
                           disabled={isLoadingDelete}
                         >
                           {isLoadingDelete ? (
@@ -314,4 +305,6 @@ const Route = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(Route)), { ssr: false })
+export default dynamic(() => Promise.resolve(withAuth(Position)), {
+  ssr: false,
+})
