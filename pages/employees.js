@@ -29,6 +29,7 @@ import {
   inputEmail,
   inputNumber,
   inputText,
+  staticInputSelect,
 } from '../utils/dynamicForm'
 import { useQueryClient } from 'react-query'
 import Pagination from '../components/Pagination'
@@ -36,6 +37,7 @@ import moment from 'moment'
 
 const Employee = () => {
   const [search, setSearch] = useState('')
+  const [radio, setRadio] = useState(false)
   const [page, setPage] = useState(1)
   const { getEmployees, updateEmployee, addEmployee, deleteEmployee } =
     useEmployees(page)
@@ -147,6 +149,7 @@ const Employee = () => {
           d.employeeName.toUpperCase().includes(search.trim())
         : d
     )
+
   return (
     <>
       <Head>
@@ -245,7 +248,7 @@ const Employee = () => {
                       })}
                     </div>
                     <div className='col-md-6 col-12'>
-                      {dynamicInputSelect({
+                      {staticInputSelect({
                         register,
                         label: 'Gender',
                         data: [{ name: 'Male' }, { name: 'Female' }],
@@ -392,6 +395,7 @@ const Employee = () => {
               </caption>
               <thead>
                 <tr>
+                  <th></th>
                   <th>Emp. ID</th>
                   <th>Emp. Name</th>
                   <th>Mobile</th>
@@ -405,6 +409,15 @@ const Employee = () => {
                 {data &&
                   filterEmployee.map((employee) => (
                     <tr key={employee._id}>
+                      <td>
+                        <input
+                          className='form-check-input rounded-pill mt-0'
+                          name='selector'
+                          type='radio'
+                          value={employee._id}
+                          onChange={(e) => setRadio(e.target.value)}
+                        />
+                      </td>
                       <td>{employee.employeeId}</td>
                       <td>{employee.employeeName}</td>
                       <td>{employee.mobile}</td>
@@ -429,7 +442,7 @@ const Employee = () => {
                         </button>
 
                         <button
-                          className='btn btn-danger btn-sm rounded-pill ms-1'
+                          className='btn btn-danger btn-sm rounded-pill mx-1'
                           onClick={() => deleteHandler(employee._id)}
                           disabled={isLoadingDelete}
                         >
