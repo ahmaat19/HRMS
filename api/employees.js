@@ -40,5 +40,30 @@ export default function useEmployees(page) {
     }
   )
 
-  return { getEmployees, updateEmployee, deleteEmployee, addEmployee }
+  // employee department transfer
+  const departmentTransfer = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/department-transfer`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['employees']),
+    }
+  )
+
+  // employee position transfer
+  const positionTransfer = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/position-transfer`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['employees']),
+    }
+  )
+
+  return {
+    getEmployees,
+    updateEmployee,
+    deleteEmployee,
+    addEmployee,
+    departmentTransfer,
+    positionTransfer,
+  }
 }

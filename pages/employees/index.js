@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
+import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import withAuth from '../HOC/withAuth'
-import Message from '../components/Message'
+import withAuth from '../../HOC/withAuth'
+import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
 import {
   FaCheckCircle,
@@ -11,16 +12,18 @@ import {
   FaPlus,
   FaTimesCircle,
   FaTrash,
+  FaBuilding,
+  FaAlignCenter,
 } from 'react-icons/fa'
 
-import useEmployees from '../api/employees'
-import useDepartments from '../api/departments'
-import usePositions from '../api/positions'
+import useEmployees from '../../api/employees'
+import useDepartments from '../../api/departments'
+import usePositions from '../../api/positions'
 
 import { CSVLink } from 'react-csv'
 
 import { confirmAlert } from 'react-confirm-alert'
-import { Confirm } from '../components/Confirm'
+import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
 import {
   dynamicInputSelect,
@@ -30,14 +33,13 @@ import {
   inputNumber,
   inputText,
   staticInputSelect,
-} from '../utils/dynamicForm'
+} from '../../utils/dynamicForm'
 import { useQueryClient } from 'react-query'
-import Pagination from '../components/Pagination'
+import Pagination from '../../components/Pagination'
 import moment from 'moment'
 
 const Employee = () => {
   const [search, setSearch] = useState('')
-  const [radio, setRadio] = useState(false)
   const [page, setPage] = useState(1)
   const { getEmployees, updateEmployee, addEmployee, deleteEmployee } =
     useEmployees(page)
@@ -395,7 +397,6 @@ const Employee = () => {
               </caption>
               <thead>
                 <tr>
-                  <th></th>
                   <th>Emp. ID</th>
                   <th>Emp. Name</th>
                   <th>Mobile</th>
@@ -409,15 +410,6 @@ const Employee = () => {
                 {data &&
                   filterEmployee.map((employee) => (
                     <tr key={employee._id}>
-                      <td>
-                        <input
-                          className='form-check-input rounded-pill mt-0'
-                          name='selector'
-                          type='radio'
-                          value={employee._id}
-                          onChange={(e) => setRadio(e.target.value)}
-                        />
-                      </td>
                       <td>{employee.employeeId}</td>
                       <td>{employee.employeeName}</td>
                       <td>{employee.mobile}</td>
@@ -454,6 +446,20 @@ const Employee = () => {
                             </span>
                           )}
                         </button>
+                        <Link
+                          href={`/employees/department-transfer/${employee._id}/${employee.department._id}`}
+                        >
+                          <a className='btn btn-primary btn-sm rounded-pill'>
+                            <FaBuilding />
+                          </a>
+                        </Link>
+                        <Link
+                          href={`/employees/position-transfer/${employee._id}/${employee.position._id}`}
+                        >
+                          <a className='btn btn-primary btn-sm rounded-pill mx-1'>
+                            <FaAlignCenter />
+                          </a>
+                        </Link>
                       </td>
                     </tr>
                   ))}
