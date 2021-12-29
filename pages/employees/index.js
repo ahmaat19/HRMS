@@ -447,14 +447,14 @@ const Employee = () => {
                           )}
                         </button>
                         <Link
-                          href={`/employees/department-transfer/${employee._id}/${employee.department._id}`}
+                          href={`/employees/department-transfer/${employee._id}`}
                         >
                           <a className='btn btn-primary btn-sm rounded-pill'>
                             <FaBuilding />
                           </a>
                         </Link>
                         <Link
-                          href={`/employees/position-transfer/${employee._id}/${employee.position._id}`}
+                          href={`/employees/position-transfer/${employee._id}`}
                         >
                           <a className='btn btn-primary btn-sm rounded-pill mx-1'>
                             <FaAlignCenter />

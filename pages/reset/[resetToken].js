@@ -51,7 +51,7 @@ const Reset = () => {
         <title>Reset</title>
         <meta property='og:title' content='Reset' key='title' />
       </Head>
-      <h3 className=''>Reset Password</h3>
+      <h3 className='fw-light font-monospace text-center'>Reset Password</h3>
       {isSuccess && (
         <Message variant='success'>Password Updated Successfully</Message>
       )}
