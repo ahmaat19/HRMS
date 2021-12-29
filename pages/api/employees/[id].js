@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import dbConnect from '../../../utils/db'
 import Employee from '../../../models/Employee'
 import { isAuth } from '../../../utils/auth'
+import EActivity from '../../../utils/EActivity'
 
 const handler = nc()
 
@@ -51,9 +52,10 @@ handler.put(async (req, res) => {
       obj.updatedBy = updatedBy
       await obj.save()
 
+      EActivity('Modification', 'Employee has updated', updatedBy, obj._id)
       res.json({ status: constants.success })
     } else {
-      return res.status(400).send(constants.success)
+      return res.status(400).send(constants.failed)
     }
   } else {
     return res.status(404).send(constants.failed)

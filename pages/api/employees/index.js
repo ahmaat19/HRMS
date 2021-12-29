@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import dbConnect from '../../../utils/db'
 import Employee from '../../../models/Employee'
 import { isAuth } from '../../../utils/auth'
+import EActivity from '../../../utils/EActivity'
 
 const handler = nc()
 
@@ -84,6 +85,13 @@ handler.post(async (req, res) => {
   })
 
   if (createObj) {
+    EActivity(
+      'Registration',
+      'New employee has registered',
+      createdBy,
+      createObj._id
+    )
+
     res.status(201).json({ status: constants.success })
   } else {
     return res.status(400).send(constants.failed)
