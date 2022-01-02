@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
@@ -8,10 +8,12 @@ import { FaFileDownload } from 'react-icons/fa'
 import useEmployeeActivities from '../../api/employeeActivities'
 import { CSVLink } from 'react-csv'
 import moment from 'moment'
+import Pagination from '../../components/Pagination'
 
 const Activities = () => {
   const [search, setSearch] = useState('')
-  const { addEmployeeActivity } = useEmployeeActivities()
+  const [page, setPage] = useState(1)
+  const { addEmployeeActivity } = useEmployeeActivities(page)
 
   const { isLoading, isError, error, isSuccess, mutateAsync, data } =
     addEmployeeActivity
@@ -23,7 +25,7 @@ const Activities = () => {
 
   const forExcel =
     data &&
-    data.map((d) => ({
+    data.data.map((d) => ({
       EmployeeID: d.employee.employeeId,
       Name: d.employee.employeeName,
       ActionType: d.type,
@@ -32,13 +34,19 @@ const Activities = () => {
       DoneBy: d.doneBy.name,
     }))
 
+  useEffect(() => {
+    if (search) {
+      mutateAsync(search)
+    }
+  }, [page])
+
   return (
     <>
       <Head>
         <title>Employee</title>
         <meta property='og:title' content='Employee' key='title' />
       </Head>
-      {isSuccess && (
+      {isSuccess && page <= 1 && (
         <Message variant='success'>
           Employee activity has been fetched successfully.
         </Message>
@@ -46,7 +54,10 @@ const Activities = () => {
       {isError && <Message variant='danger'>{error}</Message>}
 
       <div className='position-relative'>
-        <CSVLink data={data ? forExcel : []} filename='employee activities.csv'>
+        <CSVLink
+          data={data && data.data ? forExcel : []}
+          filename='employee activities.csv'
+        >
           <button
             className='btn btn-success position-fixed rounded-3 animate__bounceIn'
             style={{
@@ -62,6 +73,9 @@ const Activities = () => {
       <div className='row mt-3'>
         <div className='col-md-4 col-6 me-auto'>
           <h3 className='fw-light font-monospace'>Employee Activities</h3>
+        </div>
+        <div className='col-md-4 col-6 m-auto'>
+          <Pagination data={data && data} setPage={setPage} />
         </div>
 
         <div className='col-md-4 col-12 ms-auto'>
@@ -97,7 +111,7 @@ const Activities = () => {
           <div className='table-responsive '>
             <table className='table table-sm hover bordered table-striped caption-top '>
               <caption>
-                {!isLoading && data ? data.length : 0} records were found
+                {!isLoading && data ? data.total : 0} records were found
               </caption>
               <thead>
                 <tr>
@@ -111,7 +125,7 @@ const Activities = () => {
               </thead>
               <tbody>
                 {data &&
-                  data.map((employee) => (
+                  data.data.map((employee) => (
                     <tr key={employee._id}>
                       <td>{employee.employee.employeeId}</td>
                       <td>{employee.employee.employeeName}</td>

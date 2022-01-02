@@ -10,14 +10,43 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
   const employeeId = req.body
-  console.log(req.body)
+
   const employee = await Employee.findOne({ employeeId })
   if (employee) {
-    const obj = await EmployeeActivity.find({ employee: employee._id })
+    let query = EmployeeActivity.find({ employee: employee._id })
+    const page = parseInt(req.query.page) || 1
+    const pageSize = parseInt(req.query.limit) || 2
+    const skip = (page - 1) * pageSize
+    const total = await EmployeeActivity.countDocuments({
+      employee: employee._id,
+    })
+    const pages = Math.ceil(total / pageSize)
+
+    // const obj = await EmployeeActivity.find({ employee: employee._id })
+    // .sort({ createdAt: -1 })
+    // .skip(skip)
+    // .limit(pageSize)
+    // .populate('employee')
+    // .populate('doneBy', ['name'])
+    query = query
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize)
       .populate('employee')
       .populate('doneBy', ['name'])
-    res.status(200).send(obj)
+    const result = await query
+
+    res.status(200).send({
+      startIndex: skip + 1,
+      endIndex: skip + result.length,
+      count: result.length,
+      page,
+      pages,
+      total,
+      data: result,
+    })
+
+    // res.status(200).send(obj)
   } else {
     return res
       .status(400)
