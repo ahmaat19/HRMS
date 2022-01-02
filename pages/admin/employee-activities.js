@@ -21,6 +21,7 @@ const Activities = () => {
   const searchHandler = (e) => {
     e.preventDefault()
     mutateAsync(search)
+    setPage(1)
   }
 
   const forExcel =
@@ -38,6 +39,7 @@ const Activities = () => {
     if (search) {
       mutateAsync(search)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
 
   return (

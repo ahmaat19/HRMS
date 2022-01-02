@@ -13,7 +13,7 @@ import Loader from 'react-loader-spinner'
 const Logon = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const { getUsersLog } = useUsers(page)
+  const { getUsersLog } = useUsers(page, search)
 
   const queryClient = useQueryClient()
 
@@ -23,8 +23,25 @@ const Logon = () => {
     const refetch = async () => {
       await queryClient.prefetchQuery('usersLog')
     }
+    if (search) {
+      setPage(1)
+      refetch()
+    }
     refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, queryClient])
+
+  const searchHandler = (e) => {
+    e.preventDefault()
+
+    const refetch = async () => {
+      await queryClient.prefetchQuery('usersLog')
+    }
+    if (search) {
+      setPage(1)
+      refetch()
+    }
+  }
 
   return (
     <>
@@ -41,16 +58,18 @@ const Logon = () => {
         </div>
 
         <div className='col-md-4 col-12 m-auto'>
-          <input
-            type='text'
-            className='form-control py-2'
-            placeholder='Search by Email or Name'
-            name='search'
-            value={search}
-            onChange={(e) => setSearch(e.target.value.toLowerCase())}
-            autoFocus
-            required
-          />
+          <form onSubmit={(e) => searchHandler(e)}>
+            <input
+              type='text'
+              className='form-control py-2'
+              placeholder='Search by Email or Name'
+              name='search'
+              value={search}
+              onChange={(e) => setSearch(e.target.value.toLowerCase())}
+              autoFocus
+              required
+            />
+          </form>
         </div>
       </div>
 
@@ -81,22 +100,20 @@ const Logon = () => {
               </thead>
               <tbody>
                 {!isLoading &&
-                  data.data.map(
-                    (log) =>
-                      log.user &&
-                      log.user.email.includes(search.trim()) && (
-                        <tr key={log._id}>
-                          <td>{log.user && log.user.name}</td>
-                          <td>
-                            <a href={`mailto:${log.user && log.user.email}`}>
-                              {log.user && log.user.email}
-                            </a>
-                          </td>
-                          <td>{moment(log.createdAt).format('YYYY-MM-DD')}</td>
-                          <td>{moment(log.createdAt).format('HH:mm:ss')}</td>
-                        </tr>
-                      )
-                  )}
+                  data.data.map((log) => (
+                    // log.user &&
+                    // log.user.email.includes(search.trim()) &&
+                    <tr key={log._id}>
+                      <td>{log.user && log.user.name}</td>
+                      <td>
+                        <a href={`mailto:${log.user && log.user.email}`}>
+                          {log.user && log.user.email}
+                        </a>
+                      </td>
+                      <td>{moment(log.createdAt).format('YYYY-MM-DD')}</td>
+                      <td>{moment(log.createdAt).format('HH:mm:ss')}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

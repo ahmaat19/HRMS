@@ -66,7 +66,7 @@ export const updateUserProfile = async (user) => {
   }
 }
 
-export default function useUsers(page) {
+export default function useUsers(page, search) {
   const queryClient = useQueryClient()
 
   // get all users
@@ -79,7 +79,12 @@ export default function useUsers(page) {
   // get all users log
   const getUsersLog = useQuery(
     'usersLog',
-    async () => await dynamicAPI('get', `${url}/logon?page=${page}`, {}),
+    async () =>
+      await dynamicAPI(
+        'get',
+        `${url}/logon?page=${page}&&search=${search}`,
+        {}
+      ),
     { retry: 0 }
   )
 

@@ -15,7 +15,7 @@ handler.post(async (req, res) => {
   if (employee) {
     let query = EmployeeActivity.find({ employee: employee._id })
     const page = parseInt(req.query.page) || 1
-    const pageSize = parseInt(req.query.limit) || 2
+    const pageSize = parseInt(req.query.limit) || 1
     const skip = (page - 1) * pageSize
     const total = await EmployeeActivity.countDocuments({
       employee: employee._id,
