@@ -23,12 +23,7 @@ const Logon = () => {
     const refetch = async () => {
       await queryClient.prefetchQuery('usersLog')
     }
-    if (search) {
-      setPage(1)
-      refetch()
-    }
     refetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, queryClient])
 
   const searchHandler = (e) => {
@@ -38,7 +33,6 @@ const Logon = () => {
       await queryClient.prefetchQuery('usersLog')
     }
     if (search) {
-      setPage(1)
       refetch()
     }
   }
@@ -65,7 +59,9 @@ const Logon = () => {
               placeholder='Search by Email or Name'
               name='search'
               value={search}
-              onChange={(e) => setSearch(e.target.value.toLowerCase())}
+              onChange={(e) => (
+                setSearch(e.target.value.toLowerCase()), setPage(1)
+              )}
               autoFocus
               required
             />

@@ -19,7 +19,7 @@ handler.get(async (req, res) => {
   )
 
   const page = parseInt(req.query.page) || 1
-  const pageSize = parseInt(req.query.limit) || 2
+  const pageSize = parseInt(req.query.limit) || 50
   const skip = (page - 1) * pageSize
 
   const pages = Math.ceil(total / pageSize)

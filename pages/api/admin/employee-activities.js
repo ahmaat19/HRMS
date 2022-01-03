@@ -15,19 +15,13 @@ handler.post(async (req, res) => {
   if (employee) {
     let query = EmployeeActivity.find({ employee: employee._id })
     const page = parseInt(req.query.page) || 1
-    const pageSize = parseInt(req.query.limit) || 1
+    const pageSize = parseInt(req.query.limit) || 50
     const skip = (page - 1) * pageSize
     const total = await EmployeeActivity.countDocuments({
       employee: employee._id,
     })
     const pages = Math.ceil(total / pageSize)
 
-    // const obj = await EmployeeActivity.find({ employee: employee._id })
-    // .sort({ createdAt: -1 })
-    // .skip(skip)
-    // .limit(pageSize)
-    // .populate('employee')
-    // .populate('doneBy', ['name'])
     query = query
       .sort({ createdAt: -1 })
       .skip(skip)
