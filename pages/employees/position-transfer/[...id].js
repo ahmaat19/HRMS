@@ -73,7 +73,7 @@ const PositionTransfer = () => {
           label: 'Position',
           errors,
           name: 'position',
-          data: data,
+          data: data.filter((d) => d.isActive),
         })}
 
         <button

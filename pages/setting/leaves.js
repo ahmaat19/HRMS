@@ -1,24 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
-import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
-import {
-  FaCheckCircle,
-  FaFileDownload,
-  FaPenAlt,
-  FaPlus,
-  FaTimesCircle,
-  FaTrash,
-  FaBuilding,
-  FaAlignCenter,
-} from 'react-icons/fa'
+import { FaFileDownload, FaPenAlt, FaPlus, FaTrash } from 'react-icons/fa'
 
+import useLeaves from '../../api/leaves'
 import useEmployees from '../../api/employees'
-import useDepartments from '../../api/departments'
-import usePositions from '../../api/positions'
 
 import { CSVLink } from 'react-csv'
 
@@ -26,26 +15,24 @@ import { confirmAlert } from 'react-confirm-alert'
 import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
 import {
-  dynamicInputSelect,
-  inputCheckBox,
+  InputAutoCompleteSelect,
   inputDate,
-  inputEmail,
-  inputNumber,
-  inputText,
+  inputTextArea,
   staticInputSelect,
 } from '../../utils/dynamicForm'
 import { useQueryClient } from 'react-query'
 import Pagination from '../../components/Pagination'
 import moment from 'moment'
 
-const Employee = () => {
+const Leave = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const { getEmployees, updateEmployee, addEmployee, deleteEmployee } =
-    useEmployees(page, search)
+  const { getLeaves, updateLeave, addLeave, deleteLeave } = useLeaves(
+    page,
+    search
+  )
 
-  const { getDepartments } = useDepartments()
-  const { getPositions } = usePositions()
+  const { getAllEmployees } = useEmployees()
   const {
     register,
     handleSubmit,
@@ -62,7 +49,7 @@ const Employee = () => {
 
   useEffect(() => {
     const refetch = async () => {
-      await queryClient.prefetchQuery('employees')
+      await queryClient.prefetchQuery('leaves')
     }
     refetch()
   }, [page, queryClient])
@@ -71,16 +58,15 @@ const Employee = () => {
     e.preventDefault()
 
     const refetch = async () => {
-      await queryClient.prefetchQuery('employees')
+      await queryClient.prefetchQuery('leaves')
     }
     if (search) {
       refetch()
     }
   }
 
-  const { data, isLoading, isError, error } = getEmployees
-  const { data: departmentData } = getDepartments
-  const { data: positionData } = getPositions
+  const { data, isLoading, isError, error } = getLeaves
+  const { data: employeeData } = getAllEmployees
 
   const {
     isLoading: isLoadingUpdate,
@@ -88,7 +74,7 @@ const Employee = () => {
     error: errorUpdate,
     isSuccess: isSuccessUpdate,
     mutateAsync: updateMutateAsync,
-  } = updateEmployee
+  } = updateLeave
 
   const {
     isLoading: isLoadingDelete,
@@ -96,7 +82,7 @@ const Employee = () => {
     error: errorDelete,
     isSuccess: isSuccessDelete,
     mutateAsync: deleteMutateAsync,
-  } = deleteEmployee
+  } = deleteLeave
 
   const {
     isLoading: isLoadingAdd,
@@ -104,7 +90,7 @@ const Employee = () => {
     error: errorAdd,
     isSuccess: isSuccessAdd,
     mutateAsync: addMutateAsync,
-  } = addEmployee
+  } = addLeave
 
   const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
@@ -127,72 +113,64 @@ const Employee = () => {
     edit
       ? updateMutateAsync({
           _id: id,
-          employeeId: data.employeeId,
-          employeeName: data.employeeName,
-          email: data.email,
-          mobile: data.mobile,
-          gender: data.gender,
-          contractDate: data.contractDate,
-          department: data.department,
-          position: data.position,
-          isActive: data.isActive,
+          employee: data.employee,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          type: data.type,
+          reason: data.reason,
         })
       : addMutateAsync(data)
   }
 
-  const editHandler = (employee) => {
-    setId(employee._id)
+  const editHandler = (leave) => {
+    setId(leave._id)
     setEdit(true)
-    setValue('employeeId', employee.employeeId)
-    setValue('employeeName', employee.employeeName)
-    setValue('email', employee.email)
-    setValue('mobile', employee.mobile)
-    setValue('gender', employee.gender)
-    setValue('contractDate', moment(employee.contractDate).format('YYYY-MM-DD'))
-    setValue('isActive', employee.isActive)
-    setValue('department', employee.department._id)
-    setValue('position', employee.position._id)
+    setValue('employee', leave.employee._id)
+    setValue('startDate', moment(leave.startDate).format('YYYY-MM-DD'))
+    setValue('endDate', moment(leave.endDate).format('YYYY-MM-DD'))
+    setValue('type', leave.type)
+    setValue('reason', leave.reason)
   }
 
   return (
     <>
       <Head>
-        <title>Employee</title>
-        <meta property='og:title' content='Employee' key='title' />
+        <title>Leaves</title>
+        <meta property='og:title' content='Leaves' key='title' />
       </Head>
       {isSuccessUpdate && (
         <Message variant='success'>
-          Employee has been updated successfully.
+          Leave has been updated successfully.
         </Message>
       )}
       {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
       {isSuccessAdd && (
         <Message variant='success'>
-          Employee has been Created successfully.
+          Leave has been Created successfully.
         </Message>
       )}
       {isErrorAdd && <Message variant='danger'>{errorAdd}</Message>}
       {isSuccessDelete && (
         <Message variant='success'>
-          Employee has been deleted successfully.
+          Leave has been deleted successfully.
         </Message>
       )}
       {isErrorDelete && <Message variant='danger'>{errorDelete}</Message>}
 
       <div
         className='modal fade'
-        id='editEmployeeModal'
+        id='editLeaveModal'
         data-bs-backdrop='static'
         data-bs-keyboard='false'
         tabIndex='-1'
-        aria-labelledby='editEmployeeModalLabel'
+        aria-labelledby='editLeaveModalLabel'
         aria-hidden='true'
       >
         <div className='modal-dialog modal-lg'>
           <div className='modal-content modal-background'>
             <div className='modal-header'>
-              <h3 className='modal-title ' id='editEmployeeModalLabel'>
-                {edit ? 'Edit Employee' : 'Add Employee'}
+              <h3 className='modal-title ' id='editLeaveModalLabel'>
+                {edit ? 'Edit Leave' : 'Add Leave'}
               </h3>
               <button
                 type='button'
@@ -219,89 +197,55 @@ const Employee = () => {
                 <form onSubmit={handleSubmit(submitHandler)}>
                   <div className='row'>
                     <div className='col-md-6 col-12'>
-                      {inputText({
+                      {InputAutoCompleteSelect({
                         register,
                         label: 'Employee ID',
                         errors,
-                        name: 'employeeId',
-                      })}
-                    </div>
-                    <div className='col-md-6 col-12'>
-                      {inputText({
-                        register,
-                        label: 'Employee Name',
-                        errors,
-                        name: 'employeeName',
-                      })}
-                    </div>
-
-                    <div className='col-md-6 col-12'>
-                      {inputEmail({
-                        register,
-                        label: 'Email',
-                        errors,
-                        name: 'email',
-                      })}
-                    </div>
-                    <div className='col-md-6 col-12'>
-                      {inputNumber({
-                        register,
-                        label: 'Mobile',
-                        errors,
-                        name: 'mobile',
+                        data: employeeData && employeeData,
+                        name: 'employee',
                       })}
                     </div>
                     <div className='col-md-6 col-12'>
                       {staticInputSelect({
                         register,
-                        label: 'Gender',
-                        data: [{ name: 'Male' }, { name: 'Female' }],
+                        label: 'Leave Type',
                         errors,
-                        name: 'gender',
+                        data: [
+                          { name: 'Holyday' },
+                          { name: 'Maternity' },
+                          { name: 'Stick' },
+                          { name: 'Unpaid' },
+                        ],
+                        name: 'type',
                       })}
                     </div>
                     <div className='col-md-6 col-12'>
                       {inputDate({
                         register,
-                        label: 'Contract Date',
+                        label: 'Start Date',
                         errors,
-                        name: 'contractDate',
+                        name: 'startDate',
                       })}
                     </div>
+
                     <div className='col-md-6 col-12'>
-                      {dynamicInputSelect({
+                      {inputDate({
                         register,
-                        label: 'Department',
-                        data:
-                          departmentData &&
-                          departmentData.filter((d) => d.isActive),
+                        label: 'End Date',
                         errors,
-                        name: 'department',
+                        name: 'endDate',
                       })}
                     </div>
-                    <div className='col-md-6 col-12'>
-                      {dynamicInputSelect({
+                    <div className='col-12'>
+                      {inputTextArea({
                         register,
-                        label: 'Position',
-                        data:
-                          positionData &&
-                          positionData.filter((pos) => pos.isActive),
+                        label: 'Reason',
                         errors,
-                        name: 'position',
+                        name: 'reason',
                       })}
                     </div>
                   </div>
-                  <div className='row'>
-                    <div className='col'>
-                      {inputCheckBox({
-                        register,
-                        errors,
-                        label: 'isActive',
-                        name: 'isActive',
-                        isRequired: false,
-                      })}
-                    </div>
-                  </div>
+
                   <div className='modal-footer'>
                     <button
                       type='button'
@@ -338,12 +282,12 @@ const Employee = () => {
             right: '20px',
           }}
           data-bs-toggle='modal'
-          data-bs-target='#editEmployeeModal'
+          data-bs-target='#editLeaveModal'
         >
           <FaPlus className='mb-1' />
         </button>
 
-        <CSVLink data={data ? data.data : []} filename='employee.csv'>
+        <CSVLink data={data ? data.data : []} filename='leave.csv'>
           <button
             className='btn btn-success position-fixed rounded-3 animate__bounceIn'
             style={{
@@ -358,7 +302,7 @@ const Employee = () => {
 
       <div className='row mt-3'>
         <div className='col-md-4 col-6 m-auto'>
-          <h3 className='fw-light font-monospace'>Employees</h3>
+          <h3 className='fw-light font-monospace'>Leaves</h3>
         </div>
         <div className='col-md-4 col-6 m-auto'>
           <Pagination data={data} setPage={setPage} />
@@ -405,43 +349,39 @@ const Employee = () => {
                 <tr>
                   <th>Emp. ID</th>
                   <th>Emp. Name</th>
-                  <th>Mobile</th>
                   <th>Department</th>
-                  <th>Status</th>
-                  <th>Active</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {data &&
-                  data.data.map((employee) => (
-                    <tr key={employee._id}>
-                      <td>{employee.employeeId}</td>
-                      <td>{employee.employeeName}</td>
-                      <td>{employee.mobile}</td>
-                      <td>{employee.department.name}</td>
-                      <td>{employee.status}</td>
+                  data.data.map((leave) => (
+                    <tr key={leave._id}>
+                      <td>{leave.employee.employeeId}</td>
+                      <td>{leave.employee.employeeName}</td>
                       <td>
-                        {employee.isActive ? (
-                          <FaCheckCircle className='text-success mb-1' />
-                        ) : (
-                          <FaTimesCircle className='text-danger mb-1' />
-                        )}
+                        {leave.employee &&
+                          leave.employee.department &&
+                          leave.employee.department.name}
                       </td>
+                      <td>{moment(leave.startDate).format('ll')}</td>
+                      <td>{moment(leave.endDate).format('ll')}</td>
 
-                      <td className='btn-employee'>
+                      <td className='btn-leave'>
                         <button
                           className='btn btn-primary btn-sm rounded-pill '
-                          onClick={() => editHandler(employee)}
+                          onClick={() => editHandler(leave)}
                           data-bs-toggle='modal'
-                          data-bs-target='#editEmployeeModal'
+                          data-bs-target='#editLeaveModal'
                         >
                           <FaPenAlt />
                         </button>
 
                         <button
                           className='btn btn-danger btn-sm rounded-pill mx-1'
-                          onClick={() => deleteHandler(employee._id)}
+                          onClick={() => deleteHandler(leave._id)}
                           disabled={isLoadingDelete}
                         >
                           {isLoadingDelete ? (
@@ -452,20 +392,6 @@ const Employee = () => {
                             </span>
                           )}
                         </button>
-                        <Link
-                          href={`/employees/department-transfer/${employee._id}`}
-                        >
-                          <a className='btn btn-primary btn-sm rounded-pill'>
-                            <FaBuilding />
-                          </a>
-                        </Link>
-                        <Link
-                          href={`/employees/position-transfer/${employee._id}`}
-                        >
-                          <a className='btn btn-primary btn-sm rounded-pill mx-1'>
-                            <FaAlignCenter />
-                          </a>
-                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -478,6 +404,6 @@ const Employee = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(Employee)), {
+export default dynamic(() => Promise.resolve(withAuth(Leave)), {
   ssr: false,
 })

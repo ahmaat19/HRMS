@@ -74,7 +74,7 @@ const DepartmentTransfer = () => {
           label: 'Department',
           errors,
           name: 'department',
-          data: data,
+          data: data.filter((d) => d.isActive),
         })}
 
         <button

@@ -3,13 +3,21 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 const url = '/api/employees'
 
-export default function useEmployees(page) {
+export default function useEmployees(page, search) {
   const queryClient = useQueryClient()
 
   // get all employees
   const getEmployees = useQuery(
     'employees',
-    async () => await dynamicAPI('get', `${url}?page=${page}`, {}),
+    async () =>
+      await dynamicAPI('get', `${url}?page=${page}&&search=${search}`, {}),
+    { retry: 0 }
+  )
+
+  // get all employees for pop-up
+  const getAllEmployees = useQuery(
+    'all employees',
+    async () => await dynamicAPI('get', `${url}/get-all-employees`, {}),
     { retry: 0 }
   )
 
@@ -65,5 +73,6 @@ export default function useEmployees(page) {
     addEmployee,
     departmentTransfer,
     positionTransfer,
+    getAllEmployees,
   }
 }

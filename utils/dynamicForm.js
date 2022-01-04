@@ -284,7 +284,7 @@ export const InputAutoCompleteSelect = (args) => {
 
   return (
     <div className='mb-3'>
-      <label htmlFor='exampleDataList' className='form-label'>
+      <label htmlFor='exampleDataList' className='form-label mb-0'>
         {label}
       </label>
       <input
@@ -294,14 +294,16 @@ export const InputAutoCompleteSelect = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`Enter ${name}`}
-        className='form-control'
+        className='form-control mt-0'
       />
       <datalist id='datalistOptions'>
         <option value=''>-------------</option>
         {data &&
           data.map((d) => (
             <option key={d._id} value={d._id}>
-              {d.name}
+              {name === 'employee'
+                ? `${d.employeeId} - ${d.employeeName}`
+                : d.name}
             </option>
           ))}
       </datalist>

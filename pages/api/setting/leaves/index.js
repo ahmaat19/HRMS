@@ -1,14 +1,15 @@
 import nc from 'next-connect'
-import dbConnect from '../../../utils/db'
-import Employee from '../../../models/Employee'
-import { isAuth } from '../../../utils/auth'
-import EActivity from '../../../utils/EActivity'
+import dbConnect from '../../../../utils/db'
+import Leave from '../../../../models/Leave'
+import { isAuth } from '../../../../utils/auth'
+import EActivity from '../../../../utils/EActivity'
+import Employee from '../../../../models/Employee'
 
 const handler = nc()
 
-const modelName = 'Employee'
+const modelName = 'Leave'
 const constants = {
-  model: Employee,
+  model: Leave,
   success: `New ${modelName} was created successfully`,
   failed: `New ${modelName} was not created successfully`,
   existed: `New ${modelName} was already existed`,
@@ -19,11 +20,10 @@ handler.get(async (req, res) => {
   await dbConnect()
 
   const employeeId = req.query && req.query.search
-  let query = constants.model.find(
-    employeeId ? { employeeId: employeeId.toUpperCase() } : {}
-  )
+  const employee = await Employee.findOne({ employeeId })
+  let query = constants.model.find(employee ? { employee: employee._id } : {})
   const total = await constants.model.countDocuments(
-    employeeId ? { employeeId: employeeId.toUpperCase() } : {}
+    employee ? { employee: employee._id } : {}
   )
 
   const page = parseInt(req.query.page) || 1
@@ -36,8 +36,14 @@ handler.get(async (req, res) => {
     .skip(skip)
     .limit(pageSize)
     .sort({ createdAt: -1 })
-    .populate('department', ['name'])
-    .populate('position', ['name'])
+    .populate({
+      path: 'employee',
+      select: ['employeeId', 'employeeName'],
+      populate: {
+        path: 'department',
+        select: 'name',
+      },
+    })
 
   const result = await query
 
@@ -55,46 +61,40 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const {
-    isActive,
-    employeeId,
-    employeeName,
-    email,
-    mobile,
-    department,
-    position,
-    gender,
-    contractDate,
-  } = req.body
+  const { employee, startDate, endDate, type, reason } = req.body
   const createdBy = req.user.id
 
+  if (endDate <= startDate)
+    return res.status(400).send('Start date needs to be from the past')
+
   const exist = await constants.model.exists({
-    employeeId: employeeId.toUpperCase(),
+    employee,
+    endDate: { $gt: startDate },
   })
 
   if (exist) {
-    return res.status(400).send(constants.existed)
+    return res
+      .status(400)
+      .send(
+        'You can not process on leave with the selected date. Previous leave does not end'
+      )
   }
+
   const createObj = await constants.model.create({
-    employeeId: employeeId.toUpperCase(),
-    employeeName,
-    email,
-    mobile,
-    department,
-    position,
-    gender,
-    contractDate,
-    status: 'Active',
-    isActive,
+    employee,
+    startDate,
+    endDate,
+    type,
+    reason,
     createdBy,
   })
 
   if (createObj) {
     EActivity(
-      'Registration',
-      'New employee has registered',
+      'Leave',
+      'Employee scheduled on leave',
       createdBy,
-      createObj._id
+      createObj.employee
     )
 
     res.status(201).json({ status: constants.success })
