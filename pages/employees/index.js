@@ -34,7 +34,6 @@ import {
   inputText,
   staticInputSelect,
 } from '../../utils/dynamicForm'
-import { useQueryClient } from 'react-query'
 import Pagination from '../../components/Pagination'
 import moment from 'moment'
 
@@ -58,27 +57,18 @@ const Employee = () => {
     },
   })
 
-  const queryClient = useQueryClient()
-
   useEffect(() => {
-    const refetch = async () => {
-      await queryClient.prefetchQuery('employees')
-    }
     refetch()
-  }, [page, queryClient])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
 
   const searchHandler = (e) => {
     e.preventDefault()
-
-    const refetch = async () => {
-      await queryClient.prefetchQuery('employees')
-    }
-    if (search) {
-      refetch()
-    }
+    refetch()
   }
 
-  const { data, isLoading, isError, error } = getEmployees
+  const { data, isLoading, isError, error, refetch } = getEmployees
   const { data: departmentData } = getDepartments
   const { data: positionData } = getPositions
 
@@ -376,7 +366,6 @@ const Employee = () => {
                 setSearch(e.target.value.toUpperCase()), setPage(1)
               )}
               autoFocus
-              required
             />
           </form>
         </div>

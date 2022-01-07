@@ -20,7 +20,6 @@ import {
   inputTextArea,
   staticInputSelect,
 } from '../../utils/dynamicForm'
-import { useQueryClient } from 'react-query'
 import Pagination from '../../components/Pagination'
 import moment from 'moment'
 
@@ -45,27 +44,18 @@ const Leave = () => {
     },
   })
 
-  const queryClient = useQueryClient()
-
   useEffect(() => {
-    const refetch = async () => {
-      await queryClient.prefetchQuery('leaves')
-    }
     refetch()
-  }, [page, queryClient])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
 
   const searchHandler = (e) => {
     e.preventDefault()
 
-    const refetch = async () => {
-      await queryClient.prefetchQuery('leaves')
-    }
-    if (search) {
-      refetch()
-    }
+    refetch()
   }
 
-  const { data, isLoading, isError, error } = getLeaves
+  const { data, isLoading, isError, error, refetch } = getLeaves
   const { data: employeeData } = getAllEmployees
 
   const {
@@ -307,7 +297,6 @@ const Leave = () => {
         <div className='col-md-4 col-6 m-auto'>
           <Pagination data={data} setPage={setPage} />
         </div>
-
         <div className='col-md-4 col-12 m-auto'>
           <form onSubmit={(e) => searchHandler(e)}>
             <input

@@ -15,26 +15,19 @@ const Logon = () => {
   const [page, setPage] = useState(1)
   const { getUsersLog } = useUsers(page, search)
 
-  const queryClient = useQueryClient()
+  // const queryClient = useQueryClient()
 
-  const { data, error, isLoading, isError } = getUsersLog
+  const { data, error, isLoading, isError, refetch } = getUsersLog
 
   useEffect(() => {
-    const refetch = async () => {
-      await queryClient.prefetchQuery('usersLog')
-    }
     refetch()
-  }, [page, queryClient])
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
 
   const searchHandler = (e) => {
     e.preventDefault()
-
-    const refetch = async () => {
-      await queryClient.prefetchQuery('usersLog')
-    }
-    if (search) {
-      refetch()
-    }
+    refetch()
   }
 
   return (

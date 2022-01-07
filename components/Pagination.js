@@ -1,7 +1,7 @@
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 
 const Pagination = ({ data, setPage }) => {
-  return data ? (
+  return data && data.length > 0 ? (
     <div className='text-end my-1'>
       <span className='btn btn-light'>
         {data.startIndex} - {data.endIndex} of {data.total}
